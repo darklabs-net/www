@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DarkLabs</title>
+    <!-- Include Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Dracula Theme Colors */
+        body {
+            background-color: #282a36; /* Background */
+            color: #f8f8f2; /* Foreground */
+            font-family: Consolas, 'Courier New', monospace; /* VS Code font stack */
+            text-align: center;
+            padding: 50px;
+        }
+
+        h1 {
+            color: #bd93f9; /* Purple */
+        }
+
+        p {
+            color: #50fa7b; /* Green */
+        }
+      
+        #console {
+            background-color: #1e1e1e; /* Dark console background */
+            color: #00ff00; /* Green text */
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 16px; /* Ensure consistent font size */
+            line-height: 1.2; /* Increase line spacing */
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            height: 300px;
+            overflow-y: auto; /* Enable vertical scrolling */
+            border: 1px solid #44475a;
+            border-radius: 5px;
+            text-align: left;
+            position: relative;
+            scrollbar-width: thin; /* Firefox: Thin scrollbar */
+            scrollbar-color: #44475a #282a36; /* Firefox: Thumb and track colors */
+        }
+
+        /* Scrollbar styling for WebKit browsers */
+        #console::-webkit-scrollbar {
+            width: 8px; /* Width of the scrollbar */
+        }
+
+        #console::-webkit-scrollbar-track {
+            background: #282a36; /* Dark background for the track */
+        }
+
+        #console::-webkit-scrollbar-thumb {
+            background: #44475a; /* Dark gray thumb */
+            border-radius: 4px; /* Rounded edges for the thumb */
+        }
+
+        #console::-webkit-scrollbar-thumb:hover {
+            background: #6272a4; /* Lighter gray when hovered */
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 1em; /* Match the height of the text */
+            background-color: #00ff00;
+            margin-left: 2px;
+            animation: blink 0.5s step-start infinite;
+            vertical-align: middle; /* Align cursor with the middle of the text */
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1; /* Start with solid */
+            }
+            100% {
+                opacity: 0; /* Blink to invisible */
+            }
+        }
+
+        .fa-file-code {
+            color: yellow; /* Set the icon color to yellow */
+        }
+    </style>
+</head>
+<body>
+    <h1>darklabs.net <i class="fas fa-file-code"></i></h1>
+
+
+    <div id="console"></div>
+
+    <script>
+        const consoleElement = document.getElementById('console');
+        const lines = [
+            "Welcome to Rizzla 10.0.1 STS (GNU/Linux 5.4.0-144-generic x86_64)",
+            "",
+            "Last login: Thu Apr  3 10:00:00 2025 from 192.168.1.100",
+            "",
+            "user@ubuntu:~$ \\t\\curl -O https://darklabs.net/welcome.txt",
+            "  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current",
+            "                                 Dload  Upload   Total   Spent    Left  Speed",
+            "100   123  100   123    0     0   123k      0 --:--:-- --:--:-- --:--:--  123k",
+            "user@ubuntu:~$ \\t\\cat welcome.txt",
+            "",
+            "**********************************",
+            "** Welcome to DarkLabs.net!     **",
+            "** Stay tuned for more updates! **",
+            "**********************************",
+            "",
+            "user@ubuntu:~$ "
+        ];
+
+        let index = 0;
+        const cursor = document.createElement('span');
+        cursor.classList.add('cursor');
+
+        function typeText(line, container, callback) {
+            let charIndex = 0;
+
+            function typeChar() {
+                if (charIndex < line.length) {
+                    // Update only the dynamic part of the text
+                    container.textContent += line[charIndex];
+                    charIndex++;
+                    setTimeout(typeChar, 50); // Adjust typing speed here
+                } else if (callback) {
+                    callback();
+                }
+            }
+
+            typeChar();
+        }
+
+        function typeLine() {
+            if (index < lines.length) {
+                const line = lines[index];
+                const lineContainer = document.createElement('div');
+
+                if (line.trim() === "") {
+                    // Handle empty lines as new lines
+                    lineContainer.innerHTML = "&nbsp;"; // Add a non-breaking space to ensure spacing
+                    consoleElement.appendChild(lineContainer);
+                    index++;
+                    setTimeout(typeLine, 50); // Adjust delay for new lines
+                } else {
+                    const splitLine = line.split("\\t\\"); // Split the line at the special symbol
+                    consoleElement.appendChild(lineContainer);
+
+                    if (splitLine.length > 1) {
+                        // Create a static text element for the part before "\\t\\"
+                        const staticText = document.createElement('span');
+                        staticText.textContent = splitLine[0];
+                        lineContainer.appendChild(staticText);
+
+                        // Create a dynamic text element for the part after "\\t\\"
+                        const dynamicText = document.createElement('span');
+                        lineContainer.appendChild(dynamicText);
+
+                        // Append the cursor to the dynamic text
+                        lineContainer.appendChild(cursor);
+
+                        // Animate the part after "\\t\\"
+                        typeText(splitLine[1], dynamicText, () => {
+                            index++;
+                            typeLine();
+                        });
+                    } else {
+                        // No "\\t\\", display the line immediately
+                        lineContainer.textContent = line;
+                        lineContainer.appendChild(cursor); // Append the cursor to the current line
+                        index++;
+                        setTimeout(typeLine, 50);
+                    }
+                }
+            } else {
+                // Move the cursor to the end of the last line
+                const lastLineContainer = consoleElement.lastChild;
+                lastLineContainer.appendChild(cursor); // Append the cursor to the last line
+            }
+        }
+
+        // Start typing lines
+        consoleElement.appendChild(cursor); // Ensure the cursor is initially appended
+        typeLine();
+    </script>
+</body>
+</html>
