@@ -151,7 +151,7 @@
                     if (splitLine.length > 1) {
                         // Create a static text element for the part before "\\t\\"
                         const staticText = document.createElement('span');
-                        staticText.textContent = splitLine[0];
+                        staticText.innerHTML = splitLine[0].replace(/ /g, "&nbsp;"); // Replace spaces with non-breaking spaces
                         lineContainer.appendChild(staticText);
 
                         // Create a dynamic text element for the part after "\\t\\"
@@ -168,7 +168,7 @@
                         });
                     } else {
                         // No "\\t\\", display the line immediately
-                        lineContainer.textContent = line;
+                        lineContainer.innerHTML = line.replace(/ /g, "&nbsp;"); // Replace spaces with non-breaking spaces
                         lineContainer.appendChild(cursor); // Append the cursor to the current line
                         index++;
                         setTimeout(typeLine, 50);
